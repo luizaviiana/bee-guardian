@@ -19,7 +19,7 @@ BTN_H = 64
 
 START_SCORE = 100
 KILL_SCORE = 5
-FLOWER_PENALTY = 30  # 🔧 balanceamento ajustado
+FLOWER_PENALTY = 30 
 
 mouse_pos = (0, 0)
 
@@ -28,7 +28,6 @@ def grid_to_px(cx, cy):
     return cx * CELL + CELL // 2, cy * CELL + CELL // 2
 
 
-# -------- UI HELPERS --------
 def draw_button(rect, text):
     hovered = rect.collidepoint(mouse_pos)
 
@@ -44,7 +43,6 @@ def draw_button(rect, text):
     screen.draw.text(text, center=rect.center, fontsize=34, color="white")
 
 
-# -------- SOUND HELPERS --------
 def play_sound(name):
     if not sound_on:
         return
@@ -56,7 +54,6 @@ def play_sound(name):
         sounds.flower_hit.play()
 
 
-# -------- CORE CLASSES --------
 class SpriteAnimator:
     def __init__(self, frames, fps=8):
         self.frames = frames
@@ -212,7 +209,6 @@ class Bug:
             self.actor.image = self.idle.image()
 
 
-# -------- GAME STATE --------
 game_state = STATE_MENU
 sound_on = True
 
@@ -268,7 +264,7 @@ def update(dt):
     if spawn_timer <= 0:
         zone = Rect(0, 0, GRID_W, GRID_H)
         bugs.append(Bug(GRID_W - 1, randint(0, GRID_H - 1), zone))
-        spawn_timer = max(0.8, spawn_timer * 0.98)  # 🔧 progressão suave
+        spawn_timer = max(0.8, spawn_timer * 0.98)  
 
 
 def draw():
@@ -350,6 +346,5 @@ def on_mouse_down(pos):
             raise SystemExit
 
 
-# -------- MUSIC START --------
 music.play("theme")
 music.set_volume(0.5)
