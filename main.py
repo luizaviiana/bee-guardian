@@ -13,13 +13,15 @@ GRID_H = HEIGHT // CELL
 STATE_MENU = "menu"
 STATE_PLAY = "play"
 STATE_OVER = "over"
+STATE_WIN = "win"
 
 BTN_W = 260
 BTN_H = 64
 
 START_SCORE = 100
+WIN_SCORE = 500
 KILL_SCORE = 5
-FLOWER_PENALTY = 30 
+FLOWER_PENALTY = 30
 
 mouse_pos = (0, 0)
 
@@ -35,7 +37,6 @@ def draw_button(rect, text):
     border = (255, 220, 120) if hovered else (200, 200, 200)
 
     screen.draw.filled_rect(rect, bg)
-
     screen.draw.rect(rect, border)
     screen.draw.rect(rect.inflate(-2, -2), border)
     screen.draw.rect(rect.inflate(-4, -4), border)
@@ -154,7 +155,6 @@ class Flower:
     def __init__(self, cx, cy):
         self.actor = Actor("flower_0")
         self.actor.pos = grid_to_px(cx, cy)
-
         self.actor.scale = 1.3
 
         self.anim = SpriteAnimator(
@@ -259,12 +259,14 @@ def update(dt):
 
     if score <= 0:
         game_state = STATE_OVER
+    elif score >= WIN_SCORE:
+        game_state = STATE_WIN
 
     spawn_timer -= dt
     if spawn_timer <= 0:
         zone = Rect(0, 0, GRID_W, GRID_H)
         bugs.append(Bug(GRID_W - 1, randint(0, GRID_H - 1), zone))
-        spawn_timer = max(0.8, spawn_timer * 0.98)  
+        spawn_timer = max(0.8, spawn_timer * 0.98)
 
 
 def draw():
@@ -273,12 +275,6 @@ def draw():
     if game_state == STATE_MENU:
         screen.blit("ui_bg", (0, 0))
 
-        screen.draw.text(
-            "BEE GUARDIAN",
-            center=(WIDTH // 2 + 3, 153),
-            fontsize=72,
-            color=(0, 0, 0)
-        )
         screen.draw.text(
             "BEE GUARDIAN",
             center=(WIDTH // 2, 150),
@@ -298,13 +294,24 @@ def draw():
         b.actor.draw()
     bee.actor.draw()
 
-    screen.draw.text(f"Score: {score}", (10, 10))
+    screen.draw.text(
+        f"Score: {score} / {WIN_SCORE}",
+        (10, 10)
+    )
 
     if game_state == STATE_OVER:
         screen.draw.text(
             "GAME OVER",
             center=(WIDTH // 2, HEIGHT // 2),
             fontsize=70
+        )
+
+    if game_state == STATE_WIN:
+        screen.draw.text(
+            "YOU WIN!",
+            center=(WIDTH // 2, HEIGHT // 2),
+            fontsize=70,
+            color=(255, 230, 120)
         )
 
 
@@ -327,7 +334,7 @@ def on_mouse_move(pos):
 
 
 def on_mouse_down(pos):
-    global sound_on
+    global sound_on, game_state
 
     if game_state == STATE_MENU:
         if btn_start.collidepoint(pos):
@@ -344,6 +351,9 @@ def on_mouse_down(pos):
 
         elif btn_exit.collidepoint(pos):
             raise SystemExit
+
+    elif game_state in (STATE_OVER, STATE_WIN):
+        game_state = STATE_MENU
 
 
 music.play("theme")
